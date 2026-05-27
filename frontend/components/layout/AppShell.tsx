@@ -84,6 +84,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const isAuth     = isLogin || isRegister;
   const isPublic   = pathname === "/privacy" || pathname === "/terms";
   const isAdmin    = pathname.startsWith("/admin");
+  const isLanding  = pathname === "/";
 
   useEffect(() => {
     setMounted(true);
@@ -91,11 +92,11 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!mounted) return;
-    if (!token && !isAuth && !isPublic && !isAdmin) router.replace("/login");
-    if (token  &&  isAuth) router.replace("/dashboard");
-  }, [mounted, token, isAuth, isPublic, isAdmin, router]);
+    if (!token && !isAuth && !isPublic && !isAdmin && !isLanding) router.replace("/login");
+    if (token  && (isAuth || isLanding)) router.replace("/dashboard");
+  }, [mounted, token, isAuth, isPublic, isAdmin, isLanding, router]);
 
-  if (isAuth || isPublic) return <>{children}</>;
+  if (isAuth || isPublic || isLanding) return <>{children}</>;
 
   // Middleware has already gated protected routes to authenticated users,
   // so we render the layout immediately. AppContent shows its own data

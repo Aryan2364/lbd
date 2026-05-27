@@ -24,7 +24,23 @@
       "Bash(mv /tmp/dash.tmp app/dashboard/page.tsx)",
       "Bash(awk 'NR<833 || NR>978 {print}' app/dashboard/page.tsx)",
       "PowerShell(Copy-Item *)",
-      "PowerShell(Get-Command *)"
+      "PowerShell(Get-Command *)",
+      "Bash(node *)",
+      "PowerShell(Get-NetTCPConnection *)",
+      "PowerShell(Stop-Process *)",
+      "PowerShell(Get-Process *)",
+      "PowerShell(psql *)",
+      "PowerShell($env:PGPASSWORD=\"postgres\"; $sql = 'ALTER TABLE evening_reflections ALTER COLUMN \"energyLevel\" TYPE TEXT USING \"energyLevel\"::TEXT;'; psql -U postgres -d lbd_local -c $sql 2>&1)",
+      "PowerShell(Get-ChildItem -Path \"D:\\\\RGB_Software\\\\lbd2\\\\backend\\\\src\" -Force | Select-Object Name, @{Name=\"Type\";Expression={if\\($_.PSIsContainer\\){\"Folder\"}else{\"File\"}}} | Format-Table -AutoSize)",
+      "Bash(chmod +x D:/RGB_Software/lbd2/.git/hooks/pre-push)",
+      "Bash(pm2 restart *)",
+      "Bash(2>&1)",
+      "Bash(PGPASSWORD=postgres psql -U postgres -d lbd_local -c \"SELECT id, areas::text FROM vision_canvas LIMIT 3;\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code} %{redirect_url}\" \"http://localhost:4000/api/vision\" -H \"Authorization: Bearer test\")",
+      "Bash(git reset *)",
+      "PowerShell(head *)",
+      "Skill(update-config)",
+      "PowerShell(*)"
     ]
   }
 }

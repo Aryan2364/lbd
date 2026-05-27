@@ -29,11 +29,7 @@ export function proxy(req: NextRequest) {
       url.pathname = "/dashboard";
       return NextResponse.redirect(url);
     }
-    if (pathname === "/") {
-      const url = req.nextUrl.clone();
-      url.pathname = "/login";
-      return NextResponse.redirect(url);
-    }
+    // Unauthenticated users: let / render the landing page; /login and /register pass through.
     return NextResponse.next();
   }
 

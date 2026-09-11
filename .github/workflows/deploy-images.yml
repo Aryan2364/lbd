@@ -8,8 +8,8 @@
 # build time, so production and staging need genuinely separate builds.
 #
 # Images produced:
-#   ghcr.io/aryan2145/lbd2:production   (+ production-<sha>)
-#   ghcr.io/aryan2145/lbd2:staging      (+ staging-<sha>)
+#   ghcr.io/aryan2364/lbd2:production   (+ production-<sha>)
+#   ghcr.io/aryan2364/lbd2:staging      (+ staging-<sha>)
 #
 # GHCR login uses the automatic GITHUB_TOKEN — no secret to configure here.
 name: Build & push images
@@ -19,9 +19,9 @@ on:
     branches: [master]
   workflow_dispatch: {}   # lets you run it manually from the Actions tab
 
-# GHCR paths must be lowercase. Owner "Aryan2145" -> "aryan2145".
+# GHCR paths must be lowercase. Owner "Aryan2364" -> "aryan2364".
 env:
-  IMAGE: ghcr.io/aryan2145/lbd2
+  IMAGE: ghcr.io/aryan2364/lbd2
 
 # Allow this workflow to push packages (images) using GITHUB_TOKEN.
 permissions:

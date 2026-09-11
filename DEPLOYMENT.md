@@ -21,7 +21,7 @@ is over **environments**, not components:
 
 | Image tag                              | Serves                          | Ports on EC2 |
 | -------------------------------------- | ------------------------------- | ------------ |
-| `ghcr.io/aryan2145/lbd2:production`     | lbd.rgbindia.com                | 3100, 4100   |
+| `ghcr.io/aryan2364/lbd2:production`     | lbd.rgbindia.com                | 3100, 4100   |
 
 **Production only.** Staging is defined in the source-build `docker-compose.yml`
 but has never run on the box, so CI doesn't build it. To add it later, append the
@@ -54,7 +54,7 @@ Private GHCR images need a login. On EC2 you log in **once** with a GitHub token
 
 2. **SSH into EC2 and log Docker in to GHCR:**
    ```bash
-   echo "ghp_YOUR_TOKEN_HERE" | docker login ghcr.io -u Aryan2145 --password-stdin
+   echo "ghp_YOUR_TOKEN_HERE" | docker login ghcr.io -u Aryan2364 --password-stdin
    ```
    `Login Succeeded` is saved to `~/.docker/config.json`, so this is a one-time
    step (until the token expires).
@@ -122,8 +122,8 @@ exist, `:production-b680c357f19cb1878d0333a0514cb767fb90a121` does. Grab it with
 
 ```bash
 SHA=$(git rev-parse <good-short-sha>)          # full 40 chars
-docker pull  ghcr.io/aryan2145/lbd2:production-$SHA
-docker tag   ghcr.io/aryan2145/lbd2:production-$SHA ghcr.io/aryan2145/lbd2:production
+docker pull  ghcr.io/aryan2364/lbd2:production-$SHA
+docker tag   ghcr.io/aryan2364/lbd2:production-$SHA ghcr.io/aryan2364/lbd2:production
 docker compose -f docker-compose.deploy.yml up -d --force-recreate lbd_production
 ```
 

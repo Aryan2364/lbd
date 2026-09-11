@@ -21,7 +21,7 @@ is over **environments**, not components:
 
 | Image tag                              | Serves                          | Ports on EC2 |
 | -------------------------------------- | ------------------------------- | ------------ |
-| `ghcr.io/aryan2364/lbd2:production`     | lbd.rgbindia.com                | 3100, 4100   |
+| `ghcr.io/aryan2364/lbd:production`     | lbd.rgbindia.com                | 3100, 4100   |
 
 **Production only.** Staging is defined in the source-build `docker-compose.yml`
 but has never run on the box, so CI doesn't build it. To add it later, append the
@@ -69,7 +69,7 @@ Private GHCR images need a login. On EC2 you log in **once** with a GitHub token
 
 1. **Get the run-files on the box.** `docker-compose.deploy.yml` and `deploy.sh`
    are in the repo, so pulling the repo on EC2 is enough. The checkout lives at
-   `/home/ec2-user/lbd` (note: `lbd`, not `lbd2`):
+   `/home/ec2-user/lbd`:
    ```bash
    cd /home/ec2-user/lbd && git pull
    chmod +x deploy.sh
@@ -122,8 +122,8 @@ exist, `:production-b680c357f19cb1878d0333a0514cb767fb90a121` does. Grab it with
 
 ```bash
 SHA=$(git rev-parse <good-short-sha>)          # full 40 chars
-docker pull  ghcr.io/aryan2364/lbd2:production-$SHA
-docker tag   ghcr.io/aryan2364/lbd2:production-$SHA ghcr.io/aryan2364/lbd2:production
+docker pull  ghcr.io/aryan2364/lbd:production-$SHA
+docker tag   ghcr.io/aryan2364/lbd:production-$SHA ghcr.io/aryan2364/lbd:production
 docker compose -f docker-compose.deploy.yml up -d --force-recreate lbd_production
 ```
 

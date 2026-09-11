@@ -11,7 +11,7 @@
 # Requires .env.production next to this file — see .env.example.
 services:
   lbd_production:
-    image: ghcr.io/aryan2364/lbd2:production
+    image: ghcr.io/aryan2364/lbd:production
     container_name: lbd_production
     env_file: .env.production
     volumes:

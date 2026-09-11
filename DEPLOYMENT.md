@@ -19,9 +19,13 @@ V2E ships two images (`backend`, `frontend`). **LBD ships one image that contain
 both apps**, run side by side by pm2 (`ecosystem.config.js`). So the build matrix
 is over **environments**, not components:
 
-| Image tag                              | Serves                          | Ports on EC2 |
-| -------------------------------------- | ------------------------------- | ------------ |
-| `ghcr.io/aryan2364/lbd:production`     | lbd.rgbindia.com                | 3100, 4100   |
+| Image tag                          | Serves                       | Port on EC2 |
+| ---------------------------------- | ---------------------------- | ----------- |
+| `ghcr.io/aryan2364/lbd:production` | `life.rgbindia.com` (app)    | 3100        |
+| `ghcr.io/aryan2364/lbd:production` | `api.lbd.rgbindia.com` (API) | 4100        |
+
+Both are served by the one container. Caddy runs on the host and reverse-proxies
+`life.rgbindia.com` -> `localhost:3100` and `api.lbd.rgbindia.com` -> `localhost:4100`.
 
 **Production only.** Staging is defined in the source-build `docker-compose.yml`
 but has never run on the box, so CI doesn't build it. To add it later, append the
@@ -52,8 +56,9 @@ Private GHCR images need a login. On EC2 you log in **once** with a GitHub token
    **Personal access tokens** → **Tokens (classic)** → Generate new token (classic).
    Give it the **`read:packages`** scope only. Copy it (starts with `ghp_...`).
 
-2. **SSH into EC2 and log Docker in to GHCR:**
+2. **SSH into EC2 and log Docker in to GHCR** (the user is `ubuntu`, not `ec2-user`):
    ```bash
+   ssh -i "/path/to/RGB Server Key.pem" ubuntu@13.127.33.22
    echo "ghp_YOUR_TOKEN_HERE" | docker login ghcr.io -u Aryan2364 --password-stdin
    ```
    `Login Succeeded` is saved to `~/.docker/config.json`, so this is a one-time
@@ -67,13 +72,17 @@ Private GHCR images need a login. On EC2 you log in **once** with a GitHub token
 
 ## Part C — Set up the app on EC2 (one-time)
 
-1. **Get the run-files on the box.** `docker-compose.deploy.yml` and `deploy.sh`
-   are in the repo, so pulling the repo on EC2 is enough. The checkout lives at
-   `/home/ec2-user/lbd`:
+1. **Get the run-files on the box.** The app directory is `/home/ubuntu/lbd`.
+
+   **This directory is NOT a git checkout** - `docker-compose.deploy.yml` and
+   `deploy.sh` were copied there, so there is no `git pull` to run. When either
+   file changes in the repo, copy it up from your machine:
    ```bash
-   cd /home/ec2-user/lbd && git pull
-   chmod +x deploy.sh
+   scp -i "/path/to/RGB Server Key.pem" docker-compose.deploy.yml deploy.sh        ubuntu@13.127.33.22:/home/ubuntu/lbd/
+   ssh -i "/path/to/RGB Server Key.pem" ubuntu@13.127.33.22 'chmod +x /home/ubuntu/lbd/deploy.sh'
    ```
+   Editing `docker-compose.deploy.yml` directly on the box works too - just
+   mirror the change back into the repo, or the next copy-up will undo it.
 
 2. **Env files must sit next to `docker-compose.deploy.yml`:** `.env.production`
    and `.env.staging` (see `.env.example`). These are *not* in git and are *not*
@@ -91,7 +100,8 @@ compose file, so **Caddy, the RDS security group and DNS need no changes**.
 ## Part D — Deploying (every time)
 
 ```bash
-cd /home/ec2-user/lbd
+ssh -i "/path/to/RGB Server Key.pem" ubuntu@13.127.33.22
+cd /home/ubuntu/lbd
 ./deploy.sh                  # every service in the deploy compose
 ./deploy.sh lbd_production   # just production
 ```
@@ -101,7 +111,7 @@ images, and prints status. The force-recreate matters: the `:production` tag
 *moves*, and without it Docker can leave the old container running — which looks
 exactly like a failed deploy.
 
-**Watch disk on the first run.** The box sits around 80% full (~3 GB free) and
+**Watch disk on the first run.** The box sits around 85% full (~2.9 GB free) and
 also hosts V2E, Hospital, Boiler and gbdwebinar. Pulling adds a ~760 MB image
 while the old locally-built one is still on disk. If the pull fails for space:
 
@@ -120,8 +130,11 @@ Every run also pushes a commit-pinned tag. **It uses the full 40-character SHA**
 exist, `:production-b680c357f19cb1878d0333a0514cb767fb90a121` does. Grab it with
 `git rev-parse <short-sha>`, or copy it from the Actions run.
 
+Run `git rev-parse` **on your machine** - the EC2 directory is not a checkout,
+so git commands do not work there.
+
 ```bash
-SHA=$(git rev-parse <good-short-sha>)          # full 40 chars
+SHA=$(git rev-parse <good-short-sha>)          # on your machine; full 40 chars
 docker pull  ghcr.io/aryan2364/lbd:production-$SHA
 docker tag   ghcr.io/aryan2364/lbd:production-$SHA ghcr.io/aryan2364/lbd:production
 docker compose -f docker-compose.deploy.yml up -d --force-recreate lbd_production
